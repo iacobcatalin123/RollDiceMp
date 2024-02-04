@@ -16,36 +16,12 @@ Discord: kraneq
 
 QBCore = exports['qb-core']:GetCoreObject()
 
-AcceptancePromise = promise:new()
 
-RegisterNetEvent("RollDice:Client:Roll")
-AddEventHandler("RollDice:Client:Roll", function(players, rolls)
+RegisterNetEvent("RollDiceMp:Client:Roll", function(players, rolls)
+    players.first = GetPlayerFromServerId(players.first)
+    players.second = GetPlayerFromServerId(players.second)
     local firstPed = GetPlayerPed(players.first)
     local secondPed = GetPlayerPed(players.second)
-
-    dprint("firstPed: " .. tostring(firstPed))
-    dprint("secondPed: " .. tostring(secondPed))
-
-
-    if firstPed ~= PlayerPedId() and secondPed ~= PlayerPedId() then
-        dprint("not the roller or the target")
-        return 
-    end
-
-    dprint("waiting on acceptance")
-
-    Acceptance()
-    Citizen.Await(AcceptancePromise)
-
-
-    local accepted = AcceptancePromise.value
-    if not accepted then 
-        AcceptancePromise = promise:new()
-        QBCore.Functions.Notify("Dice game was declined", "error", 5000)
-        return 
-    end
-
-    
 
     FreezeEntityPosition(PlayerPedId(), true)
     DiceRollAnimation()
@@ -56,7 +32,10 @@ AddEventHandler("RollDice:Client:Roll", function(players, rolls)
         ShowRoll("Rolled " .. rolls.firstRoll, firstPed)
         ShowRoll("Rolled " .. rolls.secondRoll, secondPed)
     end)
-    AcceptancePromise = promise:new()
+
+    Wait(5000)
+    RollDiceMenu()
+
 
 end)
 
@@ -64,10 +43,11 @@ end)
 
 RegisterCommand(RollDice.ChatCommand, function(source, args, rawCommand)
     local myCoords = GetEntityCoords(PlayerPedId())
-    local ClosestPlayers = QBCore.Functions.GetPlayersFromCoords(myCoords, 15.0)
+    local closestPlayer, distance = QBCore.Functions.GetClosestPlayer(myCoords)
 
-    local firstPlayer = ClosestPlayers[1]
-    local secondPlayer = ClosestPlayers[2]
+
+    local firstPlayer = GetPlayerServerId(PlayerId())
+    local secondPlayer = GetPlayerServerId(closestPlayer)
 
     -- if RollDice.debugging then secondPlayer = ClosestPlayers[1] end
 
@@ -80,8 +60,8 @@ RegisterCommand(RollDice.ChatCommand, function(source, args, rawCommand)
         first = firstPlayer,
         second = secondPlayer
     }
-    
-    TriggerServerEvent("RollDice:Server:Event", players)
+    QBCore.Functions.Notify("Invitation Sent", "primary", 3000)
+    TriggerServerEvent("RollDiceMp:Server:CreateGame", players)
 
 
 end, false)

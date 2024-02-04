@@ -71,7 +71,7 @@ function Acceptance()
             txt = 'Accept the dice game!',
             icon = 'fa-solid fa-check',
             params = {
-                event = 'RollDiceMp:client:acceptDiceGame',
+                event = 'RollDiceMp:client:acceptedDiceGame',
                 args = {}
             }
         },
@@ -80,25 +80,89 @@ function Acceptance()
             txt = 'Refuse the dice game!',
             icon = 'fa-solid fa-times',
             params = {
-                event = 'RollDiceMp:client:declineDiceGame',
+                event = 'RollDiceMp:client:acceptedDiceGame',
                 args = {}
             }
         },
     }
 
     exports['qb-menu']:openMenu(menu)
-
-    
 end
 
-RegisterNetEvent('RollDiceMp:client:acceptDiceGame', function()
-    AcceptancePromise:resolve(true)
+
+
+function RollDiceMenu()
+    local menu = {
+        {
+
+            isMenuHeader = true,
+            header = "Roll Dice",
+            icon = 'fa-solid fa-dice',
+
+        },
+        {
+            header = 'Roll',
+            txt = 'Roll the dice!',
+            icon = 'fa-solid fa-dice',
+            params = {
+                isServer = true,
+                event = 'RollDiceMp:Server:ReadyToRoll',
+                args = {}
+            }
+        },
+        {
+            header = 'Exit Game',
+            txt = 'Exit the game',
+            icon = 'fa-solid fa-times',
+            params = {
+                event = '',
+                args = {}
+            }
+        },
+    }
+
+    exports['qb-menu']:openMenu(menu)
+end
+
+
+
+
+
+RegisterNetEvent("RollDiceMp:Client:RequestAcceptance",function()
+    AcceptancePromise = promise:new()
+    Acceptance()
+
+    Citizen.Await(AcceptancePromise)
+    
+    local accepted = AcceptancePromise.value
+    
+    dprint("Accepted: " .. tostring(accepted))
+
+
+    if not accepted then 
+        AcceptancePromise = promise:new()
+        dprint("Declined")
+        return 
+    end
+
+    TriggerServerEvent("RollDiceMp:Server:GameCreationAccepted")    
+
 end)
 
-RegisterNetEvent('RollDiceMp:client:declineDiceGame', function()
+
+RegisterNetEvent('RollDiceMp:client:acceptedDiceGame', function()
+    AcceptancePromise:resolve(true)
+    TriggerServerEvent("RollDiceMp:Server:StartGame")
+end)
+
+RegisterNetEvent('RollDiceMp:client:declinedDiceGame', function()
     AcceptancePromise:resolve(false)
 end)
 
+
+RegisterNetEvent("RollDiceMp:client:RollDiceMenu", function() 
+    RollDiceMenu()
+end)
 
 Citizen.CreateThread(function()                                                        --Creates a suggestion box if you are using the /roll command through the config.
     TriggerEvent('chat:addSuggestion', '/' .. RollDice.ChatCommand, 'roll the dice', { --Adds the suggestion box.
