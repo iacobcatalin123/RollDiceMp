@@ -9,17 +9,9 @@ RegisterServerEvent('RollDice:Server:Event', function(players)
         firstRoll = math.random(1, 6),
         secondRoll = math.random(1, 6)
     })
+
+    dprint("RollDice:Server:Event".. "with players" .. json.encode(players))
 end)
-
-
-
-
-
-
-
-
-
-
 
 
 

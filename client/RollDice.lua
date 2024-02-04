@@ -16,12 +16,36 @@ Discord: kraneq
 
 QBCore = exports['qb-core']:GetCoreObject()
 
+AcceptancePromise = promise:new()
+
 RegisterNetEvent("RollDice:Client:Roll")
 AddEventHandler("RollDice:Client:Roll", function(players, rolls)
     local firstPed = GetPlayerPed(players.first)
     local secondPed = GetPlayerPed(players.second)
 
-    if firstPed ~= PlayerPedId() or secondPed ~= PlayerPedId() then return end
+    dprint("firstPed: " .. tostring(firstPed))
+    dprint("secondPed: " .. tostring(secondPed))
+
+
+    if firstPed ~= PlayerPedId() and secondPed ~= PlayerPedId() then
+        dprint("not the roller or the target")
+        return 
+    end
+
+    dprint("waiting on acceptance")
+
+    Acceptance()
+    Citizen.Await(AcceptancePromise)
+
+
+    local accepted = AcceptancePromise.value
+    if not accepted then 
+        AcceptancePromise = promise:new()
+        QBCore.Functions.Notify("Dice game was declined", "error", 5000)
+        return 
+    end
+
+    
 
     FreezeEntityPosition(PlayerPedId(), true)
     DiceRollAnimation()
@@ -32,6 +56,7 @@ AddEventHandler("RollDice:Client:Roll", function(players, rolls)
         ShowRoll("Rolled " .. rolls.firstRoll, firstPed)
         ShowRoll("Rolled " .. rolls.secondRoll, secondPed)
     end)
+    AcceptancePromise = promise:new()
 
 end)
 
@@ -44,7 +69,7 @@ RegisterCommand(RollDice.ChatCommand, function(source, args, rawCommand)
     local firstPlayer = ClosestPlayers[1]
     local secondPlayer = ClosestPlayers[2]
 
-    if RollDice.debugging then secondPlayer = ClosestPlayers[1] end
+    -- if RollDice.debugging then secondPlayer = ClosestPlayers[1] end
 
     if not secondPlayer then print("second player: ".. tostring(secondPlayer)) return end    
 
