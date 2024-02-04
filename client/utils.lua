@@ -80,7 +80,7 @@ function Acceptance()
             txt = 'Refuse the dice game!',
             icon = 'fa-solid fa-times',
             params = {
-                event = 'RollDiceMp:client:acceptedDiceGame',
+                event = 'RollDiceMp:client:declinedDiceGame',
                 args = {}
             }
         },
@@ -115,7 +115,8 @@ function RollDiceMenu()
             txt = 'Exit the game',
             icon = 'fa-solid fa-times',
             params = {
-                event = '',
+                isServer = true,
+                event = 'RollDiceMp:Server:DeleteGame',
                 args = {}
             }
         },
@@ -141,6 +142,7 @@ RegisterNetEvent("RollDiceMp:Client:RequestAcceptance",function()
 
     if not accepted then 
         AcceptancePromise = promise:new()
+        TriggerServerEvent("RollDiceMp:Server:DeleteGame")
         dprint("Declined")
         return 
     end
@@ -157,6 +159,7 @@ end)
 
 RegisterNetEvent('RollDiceMp:client:declinedDiceGame', function()
     AcceptancePromise:resolve(false)
+    TriggerServerEvent("RollDiceMp:Server:DeleteGame")
 end)
 
 

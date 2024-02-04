@@ -135,7 +135,22 @@ RegisterNetEvent("RollDiceMp:Server:ReadyToRoll",function()
 end)
 
 RegisterNetEvent("RollDiceMp:Server:DeleteGame", function() 
+    local src = source
+    local gameData = findGameBasedOnPlayer(src)
+    if not gameData then 
+        dprint("No game found for player: " .. src)
+        return
+    end
 
+    dprint("Game found for player: " .. src)
+
+    for i = 1, #games do
+        if games[i] == gameData then
+            table.remove(games, i)
+            dprint("Game removed")
+            return
+        end
+    end
 end)
 
 CreateThread(function()                                                        --Creates a suggestion box if you are using the /roll command through the config.

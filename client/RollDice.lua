@@ -33,7 +33,7 @@ RegisterNetEvent("RollDiceMp:Client:Roll", function(players, rolls)
         ShowRoll("Rolled " .. rolls.secondRoll, secondPed)
     end)
 
-    Wait(5000)
+    Wait(2000)
     RollDiceMenu()
 
 
