@@ -91,7 +91,7 @@ end
 
 
 
-function RollDiceMenu()
+function RollDiceMenu(closeIt)
     local menu = {
         {
 
@@ -121,7 +121,6 @@ function RollDiceMenu()
             }
         },
     }
-
     exports['qb-menu']:openMenu(menu)
 end
 
@@ -162,6 +161,10 @@ RegisterNetEvent('RollDiceMp:client:declinedDiceGame', function()
     TriggerServerEvent("RollDiceMp:Server:DeleteGame")
 end)
 
+RegisterNetEvent("RollDiceMp:client:GameOver", function()
+    exports['qb-menu']:closeMenu()
+    QBCore.Functions.Notify("Game Over", "primary", 5000)
+end)
 
 RegisterNetEvent("RollDiceMp:client:RollDiceMenu", function() 
     RollDiceMenu()

@@ -144,6 +144,10 @@ RegisterNetEvent("RollDiceMp:Server:DeleteGame", function()
 
     dprint("Game found for player: " .. src)
 
+    TriggerClientEvent("RollDiceMp:client:GameOver", gameData.players.first)
+    TriggerClientEvent("RollDiceMp:client:GameOver", gameData.players.second)
+
+
     for i = 1, #games do
         if games[i] == gameData then
             table.remove(games, i)

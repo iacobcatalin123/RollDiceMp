@@ -45,9 +45,16 @@ RegisterCommand(RollDice.ChatCommand, function(source, args, rawCommand)
     local myCoords = GetEntityCoords(PlayerPedId())
     local closestPlayer, distance = QBCore.Functions.GetClosestPlayer(myCoords)
 
-
+    
     local firstPlayer = GetPlayerServerId(PlayerId())
     local secondPlayer = GetPlayerServerId(closestPlayer)
+
+
+    if closestPlayer == -1 then
+        QBCore.Functions.Notify("No players nearby", "error", 3000)
+        return
+    end
+    
 
     -- if RollDice.debugging then secondPlayer = ClosestPlayers[1] end
 
